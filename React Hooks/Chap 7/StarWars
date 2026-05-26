@@ -1,0 +1,3 @@
+# StarWars Characters App
+# What the App Does
+A simple React app that fetches and displays Star Wars character names from a public API when the page loads.
