@@ -1,39 +1,55 @@
-import React, { use, Suspense, useEffect, useState } from 'react'
-import axios from 'axios' // npm install axios
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
-function fetchData(searchTerm) {
-    return new Promise((resolve, reject) => {
-        axios.get(`https://swapi.dev/api/people/?search=${searchTerm}`)
-            .then((res) => {
-                console.log(res.data.results)
-                resolve(res.data.results)
-            })
+function fetchData() {
+  return axios
+    .get(`https://swapi.info/api/people`)
+    .then((res) => {
+      console.log("API response:", res.data)
+      return res.data
+    })
+    .catch((err) => {
+      console.log("API error:", err)
+      return []
     })
 }
 
-const Characters = ({ fetchDataPromise }) => {
-    const [data, setData] = useState([])
+const Characters = () => {
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-    useEffect(() => {
-        fetchDataPromise.then((data) => {
-            setData(data)
-        })
-    }, [])
+  useEffect(() => {
+    fetchData()
+      .then((results) => {
+        setData(results)
+        setLoading(false)
+      })
+      .catch((err) => {
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [])
 
-    return (
-        <div>
-        {data.map((item) => {
-            return <div key={item.name}>{item.name}</div>
-        })}
-        </div>
-    )
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error}</div>
+  if (data.length === 0) return <div>No characters found</div>
+
+  return (
+    <div>
+      {data.map((item) => (
+        <div key={item.name}>{item.name}</div>
+      ))}
+    </div>
+  )
 }
 
 function StarWars() {
-    const [searchTerm, setSearchTerm] = useState("")
-    return (
-        <Characters fetchDataPromise={fetchData(searchTerm)} />
-    )
+  return (
+    <div>
+      <Characters />
+    </div>
+  )
 }
 
 export default StarWars
